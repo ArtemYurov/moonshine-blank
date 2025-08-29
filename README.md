@@ -37,7 +37,7 @@ This is a Blank Moonshine 3 based on the [laravel-blank](https://github.com/dev-
 
 - nginx:1.29-alpine
 - php:8.4-fpm (with xdebug)
-- mysql:9.4
+- mysql:9.4 or postgres:16.2
 - redis:8.2.0-alpine
 - node:24.5-alpine3.22
 

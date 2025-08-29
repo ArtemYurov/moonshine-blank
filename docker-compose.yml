@@ -1,3 +1,6 @@
+include:
+  - ./docker/compose/${DB_CONNECTION}.yml
+
 services:
   nginx:
     build:
@@ -20,6 +23,7 @@ services:
         uid: ${UID}
         xdebug_idekey: ${XDEBUG_IDEKEY}
         xdebug_client_port: ${XDEBUG_CLIENT_PORT}
+        db_connection: ${DB_CONNECTION}
         target: dev
       context: .
       dockerfile: ./docker/dockerfiles/php/Dockerfile
@@ -37,24 +41,6 @@ services:
       redis:
         condition: service_healthy
 
-  db:
-    container_name: ${COMPOSE_PROJECT_NAME}-db
-    build:
-      context: .
-      dockerfile: ./docker/dockerfiles/mysql/Dockerfile
-    volumes:
-      - db-data:/var/lib/mysql
-      - ./docker/config/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
-      - ./docker/config/mysql/init:/docker-entrypoint-initdb.d
-    ports:
-      - "${APP_MYSQL_PORT}:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS}
-      - MYSQL_DATABASE=${DB_DATABASE}
-    healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      timeout: 10s
-      retries: 10
 
   redis:
     container_name: ${COMPOSE_PROJECT_NAME}-redis
