@@ -2,9 +2,14 @@
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
+# Check if .env file exists and COMPOSE_PROJECT_NAME is set
+ifeq ($(COMPOSE_PROJECT_NAME),)
+    $(error COMPOSE_PROJECT_NAME is not set. Please copy .env.example to .env and configure it)
+endif
+
 app := $(COMPOSE_PROJECT_NAME)-php
 nginx := $(COMPOSE_PROJECT_NAME)-nginx
-mysql := $(COMPOSE_PROJECT_NAME)-mysql
+db := $(COMPOSE_PROJECT_NAME)-db
 app-npm := npm
 path := /var/www/app
 run := docker exec $(app)
@@ -59,9 +64,9 @@ it-app:
 it-nginx:
 	docker exec -it $(nginx) /bin/bash
 
-.PHONY: it-mysql
-it-mysql:
-	docker exec -it $(mysql) /bin/bash
+.PHONY: it-db
+it-db:
+	docker exec -it $(db) /bin/bash
 
 .PHONY: migrate
 migrate:

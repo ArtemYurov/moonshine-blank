@@ -1,0 +1,19 @@
+services:
+  db:
+    container_name: ${COMPOSE_PROJECT_NAME}-db
+    build:
+      context: .
+      dockerfile: ../dockerfiles/mysql/Dockerfile
+    volumes:
+      - db-data:/var/lib/mysql
+      - ../config/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ../config/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "${APP_DB_PORT}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
