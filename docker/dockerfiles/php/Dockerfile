@@ -4,7 +4,9 @@ WORKDIR /var/www/app
 
 ARG gid
 ARG uid
+ARG db_connection
 
+# Install common packages
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -18,13 +20,27 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     htop \
     libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    default-mysql-client
+    libfreetype6-dev
+
+# Install database-specific packages
+RUN if [ "$db_connection" = "pgsql" ]; then \
+        apt-get install -y libpq-dev postgresql-client; \
+    else \
+        apt-get install -y default-mysql-client; \
+    fi
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Configure and install common PHP extensions
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-install mbstring exif pcntl bcmath gd zip pdo
+
+# Install database-specific PHP extensions
+RUN if [ "$db_connection" = "pgsql" ]; then \
+        docker-php-ext-install pdo_pgsql pgsql; \
+    else \
+        docker-php-ext-install pdo_mysql; \
+    fi
 
 RUN pecl install redis \
     && docker-php-ext-enable redis

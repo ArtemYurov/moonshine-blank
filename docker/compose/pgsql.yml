@@ -1,0 +1,19 @@
+services:
+  db:
+    container_name: ${COMPOSE_PROJECT_NAME}-db
+    build:
+      context: .
+      dockerfile: ../dockerfiles/postgres/Dockerfile
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "${APP_DB_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USERNAME}", "-d", "${DB_DATABASE}"]
+      timeout: 10s
+      retries: 10
